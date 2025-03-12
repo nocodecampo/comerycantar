@@ -110,7 +110,7 @@ def registroRestaurante():
 @app.route('/area-cliente',methods=['GET'])
 def reservas():
     if "cliente_id" not in session:
-        return redirect(url_for('login/login-cliente'))
+        return redirect(url_for('loginCliente'))
     conexion = db.get_connection()
     try:
         with conexion.cursor() as cursor:
@@ -134,7 +134,7 @@ def reservas():
 @app.route('/cancelar-reserva/<int:reserva_id>', methods=['POST'])
 def cancelar_reserva(reserva_id):
     if "cliente_id" not in session:
-        return redirect(url_for('login/login-cliente'))
+        return redirect(url_for('loginCliente'))
     
     conexion = db.get_connection()
     try:
@@ -153,7 +153,7 @@ def cancelar_reserva(reserva_id):
 def area_restaurante():
        
     if "restaurante_id" not in session:
-        return redirect(url_for('login/login-restaurante'))      
+        return redirect(url_for('loginRestaurante'))      
 
     conexion = db.get_connection()
     try:
@@ -177,7 +177,7 @@ def area_restaurante():
 @app.route('/confirmar-reserva/<int:reserva_id>', methods=['POST'])
 def confirmar_reserva(reserva_id):
     if "restaurante_id" not in session:
-        return redirect(url_for('login/login-restaurante'))
+        return redirect(url_for('loginRestaurante'))
     
     conexion = db.get_connection()
     try:
@@ -195,7 +195,7 @@ def confirmar_reserva(reserva_id):
 @app.route('/cancelar-reserva-restaurante/<int:reserva_id>', methods=['POST'])
 def cancelar_reserva_restaurante(reserva_id):
     if "restaurante_id" not in session:
-        return redirect(url_for('login'))
+        return redirect(url_for('loginRestaurante'))
 
     conexion = db.get_connection()
     try:
@@ -213,7 +213,7 @@ def cancelar_reserva_restaurante(reserva_id):
 @app.route('/agregar-mesa', methods=['POST'])
 def agregar_mesa():
     if "restaurante_id" not in session:
-        return redirect(url_for('login'))
+        return redirect(url_for('loginRestaurante'))
 
     capacidad = request.form["capacidad"]
 
