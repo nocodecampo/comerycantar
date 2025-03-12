@@ -1,5 +1,5 @@
 from flask import Flask,render_template,request,redirect,url_for,session, flash
-from werkzeug.security import check_password_hash
+from werkzeug.security import check_password_hash,generate_password_hash
 import pymysql
 import db
 
@@ -8,15 +8,7 @@ import db
 
 app = Flask(__name__)
 app.secret_key="123456"
-# Conexión a la base de datos
-def get_db_connection():
-    return pymysql.connect(
-        host='localhost',
-        user='root', 
-        password='', 
-        db='reservas_restaurantes',
-        cursorclass=pymysql.cursors.DictCursor
-    )
+
 # -------------------------------
 # 🔹 LOGIN CLIENTE
 # -------------------------------
@@ -26,7 +18,7 @@ def loginCliente():
         email = request.form['email']
         password = request.form['password']
 
-        conexion = get_db_connection()
+        conexion = db.get_connection()
         try:
             with conexion.cursor() as cursor:
                 consulta = "SELECT * FROM clientes WHERE email = %s "
@@ -43,6 +35,7 @@ def loginCliente():
             conexion.close()
 
     return render_template("login/login-cliente.html")
+
 @app.route('/dashboard-cliente')
 def dashboard_cliente():
     if 'cliente_id' in session:
@@ -50,12 +43,58 @@ def dashboard_cliente():
     else:
         return redirect(url_for('loginCliente'))
 
-
     
-@app.route('/registro-cliente',methods=['GET'])
+@app.route('/registro-cliente', methods=['GET', 'POST'])
 def registroCliente():
-    return render_template("registro/registro-cliente.html")
-   
+    if request.method == 'POST':
+        # Recoger los datos del formulario
+        nombre = request.form['nombre']
+        email = request.form['email']
+        telefono = request.form['telefono']
+        password = request.form['password']
+        hashed_password = generate_password_hash(password)
 
-if __name__ == '__main__':    
-    app.run(debug=True,port=80)
+        # Conexión a la base de datos
+        connection = db.get_connection()
+        with connection.cursor() as cursor:
+            # Insertar los datos en la tabla correspondiente
+            sql = "INSERT INTO clientes (nombre, email, telefono, password_hash) VALUES (%s, %s, %s, %s)"
+            cursor.execute(sql, (nombre, email, telefono, hashed_password))
+            connection.commit()
+        connection.close()
+
+        # Redirigir a una página de éxito o login
+        return redirect(url_for('loginCliente'))
+
+    return render_template("registro/registro-cliente.html")
+
+
+# Ruta de registro de restaurante (GET y POST)
+@app.route('/registro-restaurante', methods=['GET', 'POST'])
+def registroRestaurante():
+    if request.method == 'POST':
+        # Recoger los datos del formulario
+        nombre = request.form['nombre']
+        direccion = request.form['direccion']
+        ciudad = request.form['ciudad']
+        telefono = request.form['telefono']
+        email = request.form['email']
+        password = request.form['password']
+
+        # Conexión a la base de datos
+        connection = db.get_connection()
+        with connection.cursor() as cursor:
+            # Insertar los datos en la tabla correspondiente
+            sql = "INSERT INTO restaurantes (nombre, direccion, ciudad, telefono, email, password_hash) VALUES (%s, %s, %s, %s, %s, %s)"
+            cursor.execute(sql, (nombre, direccion, ciudad, telefono, email, password))
+            connection.commit()
+        connection.close()
+
+        # Redirigir a una página de éxito o login
+        return redirect(url_for('loginRestaurante'))
+
+    return render_template("registro/registro-restaurante.html")
+
+
+if __name__ == '__main__':
+    app.run(debug=True, port=80)
