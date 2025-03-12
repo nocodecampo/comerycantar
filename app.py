@@ -8,15 +8,7 @@ import db
 
 app = Flask(__name__)
 app.secret_key="123456"
-# Conexión a la base de datos
-def get_db_connection():
-    return pymysql.connect(
-        host='localhost',
-        user='root', 
-        password='', 
-        db='reservas_restaurantes',
-        cursorclass=pymysql.cursors.DictCursor
-    )
+
 # -------------------------------
 # 🔹 LOGIN CLIENTE
 # -------------------------------
@@ -26,7 +18,7 @@ def loginCliente():
         email = request.form['email']
         password = request.form['password']
 
-        conexion = get_db_connection()
+        conexion = db.get_connection()
         try:
             with conexion.cursor() as cursor:
                 consulta = "SELECT * FROM clientes WHERE email = %s "
@@ -49,12 +41,42 @@ def dashboard_cliente():
         return render_template("reservas/nueva-reserva.html")
     else:
         return redirect(url_for('loginCliente'))
+    
+@app.route('/registro-cliente',methods=['GET'])#registro cliente
+def registroCliente():
+    return render_template("registro/registro-cliente.html")    
 
+#login restaurante
+@app.route('/login-restaurante', methods=['GET', 'POST'])
+def loginRestaurante():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+
+        conexion = db.get_connection()
+        try:
+            with conexion.cursor() as cursor:
+                consulta = "SELECT * FROM restaurantes WHERE email = %s"
+                cursor.execute(consulta, (email,))
+                restaurante = cursor.fetchone()
+                
+                if restaurante and check_password_hash(restaurante['password_hash'], password):
+                    session['restaurante_id'] = restaurante['restaurante_id']
+                    session['email'] = restaurante['email']
+                    return redirect(url_for('area_restaurante'))  # Redirigir a dashboard restaurante
+                else:
+                    flash("Usuario o contraseña incorrectos", "error")
+                    
+                    
+                 
+        
+        finally:
+            conexion.close()
+
+    return render_template("login/login-restaurante.html") 
 
     
-@app.route('/registro-cliente',methods=['GET'])
-def registroCliente():
-    return render_template("registro/registro-cliente.html")
+
 
 @app.route('/logout')
 def logout():
