@@ -146,7 +146,7 @@ def cancelar_reserva(reserva_id):
     finally:
         conexion.close()
     
-    return redirect(url_for("area-privada/area-cliente.html"))
+    return redirect(url_for('reservas'))
 
 # ✅ Ruta para el área del restaurante
 @app.route('/area-restaurante')
