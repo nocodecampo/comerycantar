@@ -51,6 +51,8 @@ def dashboard_cliente():
         return render_template("reservas/nueva-reserva.html")
     else:
         return redirect(url_for('loginCliente'))
+    
+ 
 
     
 @app.route('/registro-cliente', methods=['GET', 'POST'])
@@ -232,6 +234,38 @@ def agregar_mesa():
 
 
    
+#login restaurante
+@app.route('/login-restaurante', methods=['GET', 'POST'])
+def loginRestaurante():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+
+        conexion = db.get_connection()
+        try:
+            with conexion.cursor() as cursor:
+                consulta = "SELECT * FROM restaurantes WHERE email = %s"
+                cursor.execute(consulta, (email,))
+                restaurante = cursor.fetchone()
+                
+                if restaurante and check_password_hash(restaurante['password_hash'], password):
+                    session['restaurante_id'] = restaurante['restaurante_id']
+                    session['email'] = restaurante['email']
+                    return redirect(url_for('area_restaurante'))  # Redirigir a dashboard restaurante
+                else:
+                    flash("Usuario o contraseña incorrectos", "error")
+                    
+                    
+                 
+        
+        finally:
+            conexion.close()
+
+    return render_template("login/login-restaurante.html") 
+
+    
+
+
 
 if __name__ == '__main__':    
     app.run(debug=True,port=80)
