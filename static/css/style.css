@@ -3,3 +3,217 @@
     padding: 0;
     box-sizing: border-box;;
 }
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f9;
+  }
+
+  header {
+    background: #ff6347; /* Color tomate */
+    color: white;
+    padding: 30px;
+    text-align: center;
+  }
+
+  header h1 {
+    font-size: 2.5em;
+    margin: 0;
+  }
+
+  header p {
+    font-size: 1.2em;
+    margin: 10px 0 0 0;
+  }
+  /* Contenedor para los botones, alineándolos horizontalmente */
+.button-container {
+    display: flex;
+    gap: 20px; /* Espacio entre los botones */
+    justify-content: center; /* Centra los botones */
+    margin-top: 20px; /* Separar del texto */
+  }
+  
+  /* Estilo para los botones */
+  a.btn {
+    text-decoration: none;
+    padding: 12px 25px;
+    font-size: 1.2em;
+    background-color: #ff6347; /* Color tomate */
+    color: white;
+    border-radius: 5px;
+  }
+  
+  /* Efecto hover para los botones */
+  a.btn:hover {
+    background-color: #ff4500; /* Cambia el color cuando se pasa el ratón */
+    color: white;
+  }
+  
+
+  section {
+    padding: 20px;
+    margin: 20px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+
+  section ul {
+    list-style-type: none;
+    padding: 0;
+  }
+
+  section ul li {
+    margin: 10px 0;
+    font-size: 1.1em;
+  }
+
+  section a {
+    text-decoration: none;
+    color: #ff6347;
+    font-weight: bold;
+    transition: color 0.3s ease;
+  }
+
+  section a:hover {
+    color: #ff4500;
+  }
+
+  footer {
+    background-color: #2c3e50; /* Un tono gris oscuro más elegante */
+    color: #ecf0f1; /* Color claro para el texto */
+    padding: 20px 20px; /* Reducido para hacer el footer más compacto */
+    text-align: center;
+    font-size: 0.9em; /* Reducir ligeramente el tamaño de la fuente */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); /* Sombra para dar profundidad */
+    width: 100%; /* Asegura que el footer ocupe todo el ancho */
+    height: auto; /* El alto se ajusta automáticamente en función del contenido */
+  }
+  
+  footer h2 {
+    font-size: 1.6em; /* Reducido el tamaño del título */
+    margin-bottom: 5px; /* Menos espacio debajo del título */
+    color: #ff6347; /* Mantener el color tomate para los títulos */
+  }
+  
+  footer p {
+    font-size: 0.95em; /* Un tamaño ligeramente más pequeño para el párrafo */
+    margin-bottom: 10px; /* Reducir el margen para hacerlo más compacto */
+  }
+  
+  footer a {
+    color: #ecf0f1;
+    text-decoration: none;
+    font-weight: bold;
+    margin: 0 8px; /* Reducir el margen entre los enlaces */
+    transition: color 0.3s ease;
+  }
+  
+  footer a:hover {
+    color: #ff6347; /* Cambia el color al pasar el ratón */
+  }
+  
+  footer .social-links {
+    margin-top: 15px; /* Reducir el margen entre los enlaces de redes sociales */
+  }
+  
+  footer .social-links a {
+    font-size: 1.3em; /* Reducir ligeramente el tamaño de los iconos */
+    margin: 0 10px; /* Reducir el margen entre los iconos de redes sociales */
+    color: #ecf0f1;
+    transition: color 0.3s ease;
+  }
+  
+  footer .social-links a:hover {
+    color: #ff6347; /* Cambio de color en el hover */
+  }
+  
+  footer .footer-bottom {
+    margin-top: 10px; /* Reducir el margen superior */
+    font-size: 0.85em; /* Font-size más pequeño */
+    color: #bdc3c7; /* Color gris suave para el texto inferior */
+  }
+  
+
+  /* Estilo para el área de imágenes */
+  .image-gallery {
+    text-align: center;
+    margin: 20px 0;
+  }
+
+  .image-gallery img {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .image-gallery {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .image-gallery img {
+    width: 30%;
+    border-radius: 15px;
+    transition: transform 0.3s ease-in-out;
+  }
+
+  .image-gallery img:hover {
+    transform: scale(1.05);
+  }
+
+/* Estilos para el formulario de nueva reserva */
+form {
+    padding: 20px;
+    margin: 20px auto;
+    max-width: 600px; /* Ancho máximo del formulario */
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  form label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #333;
+  }
+  
+  form input[type="date"],
+  form input[type="number"],
+  form select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-sizing: border-box; /* Asegura que el padding no aumente el ancho total */
+    font-size: 1em;
+  }
+  
+  form select {
+    appearance: none; /* Elimina la flecha por defecto en algunos navegadores */
+    background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%2334495e"><path d="M7 10l5 5 5-5z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 10px top 50%;
+    background-size: 20px;
+  }
+  
+  form button[type="submit"] {
+    background-color: #ff6347; /* Color tomate */
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.1em;
+    transition: background-color 0.3s ease;
+  }
+  
+  form button[type="submit"]:hover {
+    background-color: #ff4500; /* Tomate más oscuro al pasar el ratón */
+  }
