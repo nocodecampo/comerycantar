@@ -28,7 +28,7 @@ def loginCliente():
                 if cliente and check_password_hash(cliente['password_hash'], password):
                     session['cliente_id'] = cliente['cliente_id']
                     session['email'] = cliente['email']
-                    return redirect(url_for('dashboard_cliente'))  # Redirigir a dashboard cliente
+                    return redirect(url_for('reservas'))  # Redirigir a reservas cliente
                 else:
                     flash("Usuario o contraseña incorrectos", "danger")
         finally:
