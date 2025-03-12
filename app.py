@@ -46,7 +46,7 @@ def loginCliente():
 @app.route('/dashboard-cliente')
 def dashboard_cliente():
     if 'cliente_id' in session:
-        return render_template("reserva/nueva-reserva.html")
+        return render_template("reservas/nueva-reserva.html")
     else:
         return redirect(url_for('loginCliente'))
 
@@ -55,7 +55,15 @@ def dashboard_cliente():
 @app.route('/registro-cliente',methods=['GET'])
 def registroCliente():
     return render_template("registro/registro-cliente.html")
-   
+
+@app.route('/logout')
+def logout():
+    # Eliminar los datos de la sesión
+    session.clear()  # Esto elimina todas las variables de sesión
+
+    # Redirigir al login o a la página de inicio
+    return redirect(url_for('loginCliente'))  # redirigir a  página de eleccion , de momento loginCliente , despues?->'home'
+  
 
 if __name__ == '__main__':    
     app.run(debug=True,port=80)
