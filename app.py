@@ -142,7 +142,7 @@ def cancelar_reserva(reserva_id):
             consulta = "UPDATE reservas SET estado_id = (SELECT estado_id FROM estados_reserva WHERE estado_nombre = 'cancelada') WHERE reserva_id = %s AND cliente_id = %s"
             cursor.execute(consulta, (reserva_id, session["cliente_id"]))
             conexion.commit()
-            #flash("Reserva cancelada con éxito.", "success")
+            flash("Reserva cancelada con éxito.", "success")
     finally:
         conexion.close()
     
@@ -185,7 +185,7 @@ def confirmar_reserva(reserva_id):
             consulta = "UPDATE reservas SET estado_id = (SELECT estado_id FROM estados_reserva WHERE estado_nombre = 'pasada') WHERE reserva_id = 1"
             cursor.execute(consulta, (reserva_id,))
             conexion.commit()
-            #flash("Reserva confirmada.", "success")
+            flash("Reserva confirmada.", "success")
     finally:
         conexion.close()
 
@@ -203,7 +203,7 @@ def cancelar_reserva_restaurante(reserva_id):
             consulta = "UPDATE reservas SET estado_id = (SELECT estado_id FROM estados_reserva WHERE estado_nombre = 'cancelada') WHERE reserva_id = %s"
             cursor.execute(consulta, (reserva_id,))
             conexion.commit()
-            #flash("Reserva cancelada.", "warning")
+            flash("Reserva cancelada.", "warning")
     finally:
         conexion.close()
 
@@ -223,7 +223,7 @@ def agregar_mesa():
             consulta = "INSERT INTO mesas (restaurante_id, capacidad, estado) VALUES (%s, %s, 'disponible')"
             cursor.execute(consulta, (session["restaurante_id"], capacidad))
             conexion.commit()
-            #flash("Mesa agregada con éxito.", "success")
+            flash("Mesa agregada con éxito.", "success")
     finally:
         conexion.close()
 
