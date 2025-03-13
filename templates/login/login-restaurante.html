@@ -6,12 +6,30 @@
     <title>Login Restaurante</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
 </head>
+
 <body class="d-flex justify-content-center align-items-center vh-100 bg-light">
 
-    <div class="card p-4 shadow" style="width: 350px;">
-        <h3 class="text-center">Iniciar Sesión Restaurante</h3>
+    <!-- Navbar superior -->
+    <nav class="navbar navbar-light bg-white shadow-sm w-100 position-absolute top-0">
+        <div class="container">
+            <a class="navbar-brand fw-bold text-orange" href="#">
+                Comer y Cantar <i class="fa-solid fa-utensils ms-2"></i>
+            </a>
+        </div>
+    </nav>
 
+    <!-- Card para el login -->
+    <div class="card p-4 shadow" style="width: 350px;">
+        <!-- Cabecera -->
+        <div class="d-flex align-items-center mb-3">
+            
+            <h3 class="m-0">Iniciar Sesión Restaurante</h3>
+        </div>
+
+        <!-- Mostrar mensajes flash (errores o éxito) -->
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
@@ -22,6 +40,7 @@
             {% endif %}
         {% endwith %}
 
+        <!-- Formulario de login -->
         <form action="{{ url_for('loginRestaurante') }}" method="POST">
             <div class="mb-3">
                 <label for="email" class="form-label">Email</label>
@@ -33,15 +52,14 @@
                 <input type="password" id="password" name="password" class="form-control" required>
             </div>
 
-            <button type="submit" class="btn btn-primary w-100">Ingresar</button>
+            <button type="submit" class="btn btn-orange w-100">Ingresar</button>
         </form>
 
         <p class="text-center mt-3">
-        <!---¿No tienes cuenta? <a href="{{ url_for('loginRestaurante') }}">Regístrate aquí</a>--> 
+            <!-- Aquí puedes añadir el link para el registro si lo deseas -->
+            <!-- ¿No tienes cuenta? <a href="{{ url_for('registroRestaurante') }}" class="text-orange">Regístrate aquí</a> -->
         </p>
     </div>
 
 </body>
 </html>
-
-
