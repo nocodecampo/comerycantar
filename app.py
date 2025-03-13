@@ -17,6 +17,8 @@ def loginCliente():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
+        password = request.form['password']
+        hashed_password = generate_password_hash(password)
 
         conexion = db.get_connection()
         try:
@@ -89,13 +91,14 @@ def registroRestaurante():
         telefono = request.form['telefono']
         email = request.form['email']
         password = request.form['password']
+        hashed_password = generate_password_hash(password)
 
         # Conexión a la base de datos
         connection = db.get_connection()
         with connection.cursor() as cursor:
             # Insertar los datos en la tabla correspondiente
             sql = "INSERT INTO restaurantes (nombre, direccion, ciudad, telefono, email, password_hash) VALUES (%s, %s, %s, %s, %s, %s)"
-            cursor.execute(sql, (nombre, direccion, ciudad, telefono, email, password))
+            cursor.execute(sql, (nombre, direccion, ciudad, telefono, email, hashed_password))
             connection.commit()
         connection.close()
 
