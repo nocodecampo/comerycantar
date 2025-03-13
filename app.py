@@ -133,9 +133,9 @@ def registroRestaurante():
 
     return render_template("registro/registro-restaurante.html")
 
-# EDITS DIEGO
+# EDITS DIEGO ----------------------------------------------
 
-# Conectar a la base de datos y devolver las reservas del cliente
+# Ver las reservas del cliente
 @app.route('/area-cliente',methods=['GET'])
 def reservas():
     if "cliente_id" not in session:
@@ -159,7 +159,7 @@ def reservas():
     
     return render_template("area-privada/area-cliente.html", reservas=reservas)
 
-# Ruta para cancelar reservas
+# Ruta para cancelar reservas de cliente
 @app.route('/cancelar-reserva/<int:reserva_id>', methods=['POST'])
 def cancelar_reserva(reserva_id):
     if "cliente_id" not in session:
@@ -187,20 +187,33 @@ def area_restaurante():
     conexion = db.get_connection()
     try:
         with conexion.cursor() as cursor:
-            consulta = """
-                SELECT r.reserva_id, c.nombre AS cliente_nombre, r.fecha, h.hora, r.num_personas
+            # Obtener todas las mesas del restaurante
+            consulta_mesas = "SELECT mesa_id, capacidad FROM mesas WHERE restaurante_id = %s"
+            cursor.execute(consulta_mesas, (session["restaurante_id"],))
+            mesas = cursor.fetchall()
+
+            # Obtener todas las franjas horarias
+            consulta_horarios = "SELECT horario_id, hora FROM horarios ORDER BY hora"
+            cursor.execute(consulta_horarios)
+            horarios = cursor.fetchall()
+
+            # Obtener reservas activas del restaurante
+            consulta_reservas = """
+                SELECT r.reserva_id, r.mesa_id, r.horario_id, c.nombre AS cliente_nombre
                 FROM reservas r
                 JOIN clientes c ON r.cliente_id = c.cliente_id
-                JOIN horarios h ON r.horario_id = h.horario_id
-                WHERE r.restaurante_id = 1 AND r.estado_id = (SELECT estado_id FROM estados_reserva WHERE estado_nombre = 'activa')
-                ORDER BY r.fecha DESC, r.horario_id DESC
+                WHERE r.restaurante_id = %s AND r.estado_id = (SELECT estado_id FROM estados_reserva WHERE estado_nombre = 'activa')
             """
-            cursor.execute(consulta, (session["restaurante_id"],))
-            reservas = cursor.fetchall()
+            cursor.execute(consulta_reservas, (session["restaurante_id"],))
+            reservas_lista = cursor.fetchall()
+
+            # Convertir reservas en un diccionario para acceso rápido
+            reservas = {(reserva["mesa_id"], reserva["horario_id"]): reserva for reserva in reservas_lista}
+
     finally:
         conexion.close()
 
-    return render_template("area-privada/area-restaurante.html", reservas=reservas)
+    return render_template("area-privada/area-restaurante.html", mesas=mesas, horarios=horarios, reservas=reservas)
 
 # ✅ Confirmar una reserva
 @app.route('/confirmar-reserva/<int:reserva_id>', methods=['POST'])
@@ -211,8 +224,12 @@ def confirmar_reserva(reserva_id):
     conexion = db.get_connection()
     try:
         with conexion.cursor() as cursor:
-            consulta = "UPDATE reservas SET estado_id = (SELECT estado_id FROM estados_reserva WHERE estado_nombre = 'pasada') WHERE reserva_id = 1"
-            cursor.execute(consulta, (reserva_id,))
+            consulta = """
+                UPDATE reservas 
+                SET estado_id = (SELECT estado_id FROM estados_reserva WHERE estado_nombre = 'pasada') 
+                WHERE reserva_id = %s AND restaurante_id = %s
+            """
+            cursor.execute(consulta, (reserva_id, session["restaurante_id"]))
             conexion.commit()
             flash("Reserva confirmada.", "success")
     finally:
@@ -229,10 +246,22 @@ def cancelar_reserva_restaurante(reserva_id):
     conexion = db.get_connection()
     try:
         with conexion.cursor() as cursor:
-            consulta = "UPDATE reservas SET estado_id = (SELECT estado_id FROM estados_reserva WHERE estado_nombre = 'cancelada') WHERE reserva_id = %s"
-            cursor.execute(consulta, (reserva_id,))
-            conexion.commit()
-            flash("Reserva cancelada.", "warning")
+            # 🔹 Verificar si la reserva pertenece al restaurante antes de cancelarla
+            consulta_verificar = "SELECT reserva_id FROM reservas WHERE reserva_id = %s AND restaurante_id = %s"
+            cursor.execute(consulta_verificar, (reserva_id, session["restaurante_id"]))
+            reserva = cursor.fetchone()
+
+            if reserva:  # Solo se cancela si la reserva pertenece al restaurante
+                consulta_cancelar = """
+                    UPDATE reservas 
+                    SET estado_id = (SELECT estado_id FROM estados_reserva WHERE estado_nombre = 'cancelada') 
+                    WHERE reserva_id = %s
+                """
+                cursor.execute(consulta_cancelar, (reserva_id,))
+                conexion.commit()
+                flash("Reserva cancelada con éxito.", "warning")
+            else:
+                flash("No tienes permiso para cancelar esta reserva.", "danger")
     finally:
         conexion.close()
 
@@ -244,17 +273,25 @@ def agregar_mesa():
     if "restaurante_id" not in session:
         return redirect(url_for('loginRestaurante'))
 
-    capacidad = request.form["capacidad"]
-
-    conexion = db.get_connection()
     try:
-        with conexion.cursor() as cursor:
-            consulta = "INSERT INTO mesas (restaurante_id, capacidad, estado) VALUES (%s, %s, 'disponible')"
-            cursor.execute(consulta, (session["restaurante_id"], capacidad))
-            conexion.commit()
-            flash("Mesa agregada con éxito.", "success")
-    finally:
-        conexion.close()
+        capacidad = int(request.form["capacidad"])  # 🔹 Convertir a entero y validar
+
+        if capacidad < 1:  # 🔹 Evitar números negativos o cero
+            flash("El número de comensales debe ser mayor a 0.", "danger")
+            return redirect(url_for('area_restaurante'))
+
+        conexion = db.get_connection()
+        try:
+            with conexion.cursor() as cursor:
+                consulta = "INSERT INTO mesas (restaurante_id, capacidad, estado) VALUES (%s, %s, 'disponible')"
+                cursor.execute(consulta, (session["restaurante_id"], capacidad))
+                conexion.commit()
+                flash("Mesa agregada con éxito.", "success")
+        finally:
+            conexion.close()
+
+    except ValueError:  # 🔹 Maneja errores si `capacidad` no es un número válido
+        flash("Por favor, ingresa un número válido de comensales.", "danger")
 
     return redirect(url_for('area_restaurante'))
 
