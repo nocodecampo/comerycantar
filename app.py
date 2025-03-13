@@ -2,6 +2,7 @@ from flask import Flask,render_template,request,redirect,url_for,session, flash
 from werkzeug.security import check_password_hash,generate_password_hash
 import pymysql
 import db
+from datetime import datetime
 
 
 
@@ -136,23 +137,41 @@ def registroRestaurante():
 # EDITS DIEGO ----------------------------------------------
 
 # Ver las reservas del cliente
-@app.route('/area-cliente',methods=['GET'])
+@app.route('/area-cliente', methods=['GET'])
 def reservas():
     if "cliente_id" not in session:
         return redirect(url_for('loginCliente'))
+
+    fecha_actual = datetime.today().strftime("%Y-%m-%d")
+    hora_actual = datetime.today().strftime("%H:%M:%S")
+
     conexion = db.get_connection()
     try:
         with conexion.cursor() as cursor:
-            consulta = """
+            # 🔹 Actualizar reservas "activas" a "pasadas" si la fecha y hora ya pasaron
+            consulta_actualizar_pasadas = """
+                UPDATE reservas 
+                SET estado_id = (SELECT estado_id FROM estados_reserva WHERE estado_nombre = 'pasada') 
+                WHERE estado_id = (SELECT estado_id FROM estados_reserva WHERE estado_nombre = 'activa') 
+                AND (fecha < %s OR (fecha = %s AND horario_id IN (SELECT horario_id FROM horarios WHERE hora < %s)))
+            """
+            cursor.execute(consulta_actualizar_pasadas, (fecha_actual, fecha_actual, hora_actual))
+            conexion.commit()
+
+            # 🔹 Obtener reservas ordenadas por estado y fecha
+            consulta_reservas = """
                 SELECT r.reserva_id, rest.nombre AS restaurante_nombre, r.fecha, h.hora, r.num_personas, er.estado_nombre AS estado
                 FROM reservas r
                 JOIN restaurantes rest ON r.restaurante_id = rest.restaurante_id
                 JOIN horarios h ON r.horario_id = h.horario_id
                 JOIN estados_reserva er ON r.estado_id = er.estado_id
                 WHERE r.cliente_id = %s
-                ORDER BY r.fecha DESC, r.horario_id DESC
+                ORDER BY 
+                    FIELD(er.estado_nombre, 'activa', 'pasada', 'cancelada'), -- Orden de estados
+                    r.fecha ASC, -- Ordenar por fecha más reciente primero
+                    h.hora ASC -- Dentro de cada fecha, ordenar por hora más próxima
             """
-            cursor.execute(consulta, (session["cliente_id"],))
+            cursor.execute(consulta_reservas, (session["cliente_id"],))
             reservas = cursor.fetchall()
     finally:
         conexion.close()
@@ -168,70 +187,115 @@ def cancelar_reserva(reserva_id):
     conexion = db.get_connection()
     try:
         with conexion.cursor() as cursor:
-            consulta = "UPDATE reservas SET estado_id = (SELECT estado_id FROM estados_reserva WHERE estado_nombre = 'cancelada') WHERE reserva_id = %s AND cliente_id = %s"
-            cursor.execute(consulta, (reserva_id, session["cliente_id"]))
-            conexion.commit()
-            flash("Reserva cancelada con éxito.", "success")
+            # 🔹 Verificar si la reserva es "activa" antes de cancelarla
+            consulta_verificar = """
+                SELECT mesa_id FROM reservas 
+                WHERE reserva_id = %s AND cliente_id = %s 
+                AND estado_id = (SELECT estado_id FROM estados_reserva WHERE estado_nombre = 'activa')
+            """
+            cursor.execute(consulta_verificar, (reserva_id, session["cliente_id"]))
+            reserva = cursor.fetchone()
+
+            if reserva:  # Solo se cancela si la reserva está activa
+                consulta_cancelar = """
+                    UPDATE reservas 
+                    SET estado_id = (SELECT estado_id FROM estados_reserva WHERE estado_nombre = 'cancelada') 
+                    WHERE reserva_id = %s
+                """
+                cursor.execute(consulta_cancelar, (reserva_id,))
+
+                # 🔹 Hacer que la mesa vuelva a estar disponible
+                consulta_liberar_mesa = """
+                    UPDATE mesas 
+                    SET estado = 'disponible' 
+                    WHERE mesa_id = %s
+                """
+                cursor.execute(consulta_liberar_mesa, (reserva["mesa_id"],))
+
+                conexion.commit()
+                flash("Reserva cancelada y mesa liberada con éxito.", "success")
+            else:
+                flash("No puedes cancelar esta reserva porque ya ha pasado o fue cancelada.", "danger")
     finally:
         conexion.close()
-    
+
     return redirect(url_for('reservas'))
+
 
 # ✅ Ruta para el área del restaurante
 @app.route('/area-restaurante')
 def area_restaurante():
-       
     if "restaurante_id" not in session:
-        return redirect(url_for('loginRestaurante'))      
+        return redirect(url_for('loginRestaurante'))
+
+    fecha_actual = datetime.today().strftime("%Y-%m-%d")
 
     conexion = db.get_connection()
     try:
         with conexion.cursor() as cursor:
-            # Obtener todas las mesas del restaurante
+            # 🔹 Obtener todas las mesas del restaurante
             consulta_mesas = "SELECT mesa_id, capacidad FROM mesas WHERE restaurante_id = %s"
             cursor.execute(consulta_mesas, (session["restaurante_id"],))
             mesas = cursor.fetchall()
 
-            # Obtener todas las franjas horarias
+            # 🔹 Obtener todas las franjas horarias
             consulta_horarios = "SELECT horario_id, hora FROM horarios ORDER BY hora"
             cursor.execute(consulta_horarios)
             horarios = cursor.fetchall()
 
-            # Obtener reservas activas del restaurante
+            # 🔹 Obtener reservas activas y pasadas (pero no canceladas) para la fecha seleccionada
+            fecha = request.args.get("fecha", fecha_actual)
             consulta_reservas = """
-                SELECT r.reserva_id, r.mesa_id, r.horario_id, c.nombre AS cliente_nombre
+                SELECT r.reserva_id, r.mesa_id, r.horario_id, c.nombre AS cliente_nombre, er.estado_nombre AS estado, r.confirmada_por_restaurante
                 FROM reservas r
                 JOIN clientes c ON r.cliente_id = c.cliente_id
-                WHERE r.restaurante_id = %s AND r.estado_id = (SELECT estado_id FROM estados_reserva WHERE estado_nombre = 'activa')
+                JOIN estados_reserva er ON r.estado_id = er.estado_id
+                WHERE r.restaurante_id = %s 
+                AND r.fecha = %s
+                AND er.estado_nombre != 'cancelada'  -- 🔹 No mostrar reservas canceladas
             """
-            cursor.execute(consulta_reservas, (session["restaurante_id"],))
+            cursor.execute(consulta_reservas, (session["restaurante_id"], fecha))
             reservas_lista = cursor.fetchall()
 
-            # Convertir reservas en un diccionario para acceso rápido
+            # 🔹 Convertir reservas en un diccionario para acceso rápido
             reservas = {(reserva["mesa_id"], reserva["horario_id"]): reserva for reserva in reservas_lista}
 
     finally:
         conexion.close()
 
-    return render_template("area-privada/area-restaurante.html", mesas=mesas, horarios=horarios, reservas=reservas)
+    return render_template("area-privada/area-restaurante.html", mesas=mesas, horarios=horarios, reservas=reservas, fecha=fecha)
 
 # ✅ Confirmar una reserva
 @app.route('/confirmar-reserva/<int:reserva_id>', methods=['POST'])
 def confirmar_reserva(reserva_id):
     if "restaurante_id" not in session:
         return redirect(url_for('loginRestaurante'))
-    
+
     conexion = db.get_connection()
     try:
         with conexion.cursor() as cursor:
-            consulta = """
-                UPDATE reservas 
-                SET estado_id = (SELECT estado_id FROM estados_reserva WHERE estado_nombre = 'pasada') 
-                WHERE reserva_id = %s AND restaurante_id = %s
+            # 🔹 Verificar si la reserva es "activa" y aún no ha sido confirmada
+            consulta_verificar = """
+                SELECT estado_id, confirmada_por_restaurante FROM reservas 
+                WHERE reserva_id = %s AND restaurante_id = %s 
+                AND estado_id = (SELECT estado_id FROM estados_reserva WHERE estado_nombre = 'activa')
             """
-            cursor.execute(consulta, (reserva_id, session["restaurante_id"]))
-            conexion.commit()
-            flash("Reserva confirmada.", "success")
+            cursor.execute(consulta_verificar, (reserva_id, session["restaurante_id"]))
+            reserva = cursor.fetchone()
+
+            if reserva and not reserva["confirmada_por_restaurante"]:  # Solo confirmar si aún no ha sido confirmada
+                consulta_confirmar = """
+                    UPDATE reservas 
+                    SET confirmada_por_restaurante = TRUE
+                    WHERE reserva_id = %s
+                """
+                cursor.execute(consulta_confirmar, (reserva_id,))
+                conexion.commit()
+                flash("Reserva confirmada con éxito.", "success")
+            elif reserva and reserva["confirmada_por_restaurante"]:
+                flash("Esta reserva ya fue confirmada.", "info")
+            else:
+                flash("No puedes confirmar esta reserva porque ya ha pasado o fue cancelada.", "danger")
     finally:
         conexion.close()
 
@@ -246,22 +310,35 @@ def cancelar_reserva_restaurante(reserva_id):
     conexion = db.get_connection()
     try:
         with conexion.cursor() as cursor:
-            # 🔹 Verificar si la reserva pertenece al restaurante antes de cancelarla
-            consulta_verificar = "SELECT reserva_id FROM reservas WHERE reserva_id = %s AND restaurante_id = %s"
+            # 🔹 Verificar si la reserva pertenece al restaurante y está activa antes de cancelarla
+            consulta_verificar = """
+                SELECT mesa_id FROM reservas 
+                WHERE reserva_id = %s AND restaurante_id = %s 
+                AND estado_id = (SELECT estado_id FROM estados_reserva WHERE estado_nombre = 'activa')
+            """
             cursor.execute(consulta_verificar, (reserva_id, session["restaurante_id"]))
             reserva = cursor.fetchone()
 
-            if reserva:  # Solo se cancela si la reserva pertenece al restaurante
+            if reserva:  # Solo se cancela si la reserva está activa
                 consulta_cancelar = """
                     UPDATE reservas 
                     SET estado_id = (SELECT estado_id FROM estados_reserva WHERE estado_nombre = 'cancelada') 
                     WHERE reserva_id = %s
                 """
                 cursor.execute(consulta_cancelar, (reserva_id,))
+
+                # 🔹 Liberar la mesa para nuevas reservas
+                consulta_liberar_mesa = """
+                    UPDATE mesas 
+                    SET estado = 'disponible' 
+                    WHERE mesa_id = %s
+                """
+                cursor.execute(consulta_liberar_mesa, (reserva["mesa_id"],))
+
                 conexion.commit()
-                flash("Reserva cancelada con éxito.", "warning")
+                flash("Reserva cancelada y mesa liberada con éxito.", "warning")
             else:
-                flash("No tienes permiso para cancelar esta reserva.", "danger")
+                flash("No puedes cancelar esta reserva porque ya ha pasado o fue cancelada.", "danger")
     finally:
         conexion.close()
 
@@ -375,7 +452,6 @@ def nueva_reserva():
     except pymysql.Error as e:
         print("Error al obtener los restaurantes o horarios:", e)
         return "Error al cargar los datos necesarios para la reserva."
-
 
 
 if __name__ == '__main__':

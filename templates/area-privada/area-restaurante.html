@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Área Restaurante | Comer y cantar</title>
+    <title>Área Restaurante | Comer y Cantar</title>
 
     <!-- Bootstrap -->
     <link
@@ -25,7 +25,7 @@
     <!-- ✅ Barra de navegación -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
       <div class="container">
-        <a class="navbar-brand" href="{{url_for('home')}}">Comer y cantar</a>
+        <a class="navbar-brand" href="{{url_for('home')}}">Comer y Cantar</a>
         <div class="d-flex">
           <a href="{{url_for('logout')}}" class="btn btn-outline-light"
             >🚪 Cerrar Sesión</a
@@ -36,6 +36,24 @@
 
     <div class="container mt-5">
       <h1 class="text-center">🍽️ Área Restaurante</h1>
+
+      <!-- ✅ Selector de Fecha -->
+      <form
+        method="GET"
+        action="{{ url_for('area_restaurante') }}"
+        class="mb-3"
+      >
+        <label for="fecha" class="form-label">Seleccionar Fecha:</label>
+        <input
+          type="date"
+          id="fecha"
+          name="fecha"
+          class="form-control"
+          value="{{ fecha }}"
+          required
+          onchange="this.form.submit()"
+        />
+      </form>
 
       <!-- ✅ Tabla de Reservas -->
       <div class="table-responsive">
@@ -56,9 +74,20 @@
               <td>
                 {% set reserva = reservas.get((mesa.mesa_id,
                 horario.horario_id)) %} {% if reserva %}
-                <span class="badge bg-danger d-block mb-1"
-                  >🚫 Reservada por {{ reserva.cliente_nombre }}</span
+                <span
+                  class="badge {% if reserva.estado == 'pasada' %}bg-secondary {% elif reserva.estado == 'activa' and reserva.confirmada_por_restaurante %}bg-primary {% elif reserva.estado == 'activa' %}bg-danger {% else %}bg-warning{% endif %} d-block mb-1"
                 >
+                  {% if reserva.estado == 'pasada' %} ⏳ Reserva finalizada {%
+                  elif reserva.estado == 'cancelada' %} ❌ Cancelada {% elif
+                  reserva.estado == 'activa' and
+                  reserva.confirmada_por_restaurante %} ✅ Confirmada por el
+                  restaurante {% else %} 🚫 Reservada por {{
+                  reserva.cliente_nombre }} {% endif %}
+                </span>
+
+                <!-- ✅ Mostrar botón "Confirmar" solo si la reserva sigue activa y NO ha sido confirmada -->
+                {% if reserva.estado == 'activa' and not
+                reserva.confirmada_por_restaurante %}
                 <form
                   action="{{ url_for('confirmar_reserva', reserva_id=reserva.reserva_id) }}"
                   method="post"
@@ -68,6 +97,10 @@
                     ✅ Confirmar
                   </button>
                 </form>
+                {% endif %}
+
+                <!-- ✅ Mostrar botón "Cancelar" solo si la reserva sigue activa -->
+                {% if reserva.estado == 'activa' %}
                 <form
                   action="{{ url_for('cancelar_reserva_restaurante', reserva_id=reserva.reserva_id) }}"
                   method="post"
@@ -76,7 +109,7 @@
                     🗑️ Cancelar
                   </button>
                 </form>
-                {% else %}
+                {% endif %} {% else %}
                 <span class="badge bg-success d-block">✅ Disponible</span>
                 {% endif %}
               </td>
@@ -86,6 +119,7 @@
           </tbody>
         </table>
       </div>
+
       <!-- ✅ Formulario para Agregar Mesas -->
       <h3 class="mt-5">Agregar Mesa</h3>
       <form action="{{ url_for('agregar_mesa') }}" method="post" class="mt-3">

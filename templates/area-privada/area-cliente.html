@@ -59,12 +59,14 @@
               </p>
               <p class="card-text">
                 <span
-                  class="badge {% if reserva.estado == 'activa' %}bg-success{% elif reserva.estado == 'cancelada' %}bg-danger{% else %}bg-secondary{% endif %}"
+                  class="badge {% if reserva.estado == 'activa' %}bg-success {% elif reserva.estado == 'cancelada' %}bg-danger {% elif reserva.estado == 'pasada' %}bg-secondary{% endif %}"
                 >
                   {{ reserva.estado }}
                 </span>
               </p>
+
               {% if reserva.estado == 'activa' %}
+              <!-- ✅ Solo se puede cancelar si la reserva está activa -->
               <form
                 action="{{ url_for('cancelar_reserva', reserva_id=reserva.reserva_id) }}"
                 method="post"
@@ -77,8 +79,9 @@
                   🗑️ Cancelar
                 </button>
               </form>
-              {% else %}
-              <span class="text-muted">No disponible</span>
+              {% elif reserva.estado == 'pasada' %}
+              <!-- ⏳ Las reservas pasadas se mantienen visibles sin acciones -->
+              <span class="text-muted">🔹 Esta reserva ya ocurrió</span>
               {% endif %}
             </div>
           </div>
