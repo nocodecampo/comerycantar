@@ -48,7 +48,7 @@ def logout():
     session.clear()  # Esto elimina todas las variables de sesión
 
     # Redirigir al login o a la página de inicio
-    return redirect(url_for('loginCliente'))  # redirigir a  página de eleccion , de momento loginCliente , despues?->'home'
+    return redirect(url_for('home'))  # redirigir a 'home'
     
 @app.route('/registro-cliente', methods=['GET', 'POST'])
 def registroCliente():
