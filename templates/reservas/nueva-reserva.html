@@ -1,58 +1,69 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Realizar una nueva reserva</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
+
 <body>
 
   <header>
-    <h1>Haz tu reserva en uno de nuestros restaurantes</h1>
+    <h1>comerycantar <i class="fa-solid fa-utensils"></i></h1>
   </header>
+  <h2>Haz tu reserva en uno de nuestros restaurantes</h2>
+  <main>
+    <form action="/nueva-reserva" method="POST">
+      <!-- Selección del restaurante -->
+      <div class="form-group">
+        <label for="restaurante_id">Selecciona el restaurante:</label>
+        <select id="restaurante_id" name="restaurante_id" required>
+          {% for restaurante in restaurantes %}
+          <option value="{{ restaurante.restaurante_id }}">{{ restaurante.nombre }}</option>
+          {% endfor %}
+        </select>
+      </div>
 
-  <form action="/nueva-reserva" method="POST">
-    <!-- Fecha de la reserva -->
-    <label for="fecha">Fecha de la reserva:</label>
-    <input type="date" id="fecha" name="fecha" required><br><br>
+      <!-- Fecha de la reserva -->
+      <div class="form-group">
+        <label for="fecha">Fecha de la reserva:</label>
+        <input type="date" id="fecha" name="fecha" required>
+      </div>
 
-    <!-- Selección de hora -->
-    <label for="horario_id">Hora de la reserva:</label>
-    <select id="horario_id" name="horario_id" required>
-      {% for horario in horarios %}
-        <option value="{{ horario.horario_id }}">{{ horario.hora }}</option>
-      {% endfor %}
-    </select><br><br>
+      <!-- Número de personas -->
+      <div class="form-group">
+        <label for="num_personas">Número de personas:</label>
+        <input type="number" id="num_personas" name="num_personas" min="1" required>
+      </div>
 
-    <!-- Número de personas -->
-    <label for="num_personas">Número de personas:</label>
-    <input type="number" id="num_personas" name="num_personas" min="1" required><br><br>
+      <!-- Selección de hora -->
+      <div class="form-group">
+        <label for="horario_id">Hora de la reserva:</label>
+        <select id="horario_id" name="horario_id" required>
+          {% for horario in horarios %}
+          <option value="{{ horario.horario_id }}">{{ horario.hora }}</option>
+          {% endfor %}
+        </select>
+      </div>
 
-    <!-- Selección del restaurante -->
-    <label for="restaurante_id">Selecciona el restaurante:</label>
-    <select id="restaurante_id" name="restaurante_id" required>
-      {% for restaurante in restaurantes %}
-        <option value="{{ restaurante.restaurante_id }}">{{ restaurante.nombre }}</option>
-      {% endfor %}
-    </select><br><br>
-
-    <button type="submit">Hacer Reserva</button>
-  </form>
-
+      <button type="submit">Hacer Reserva</button>
+    </form>
+  </main>
   <footer>
     <p>Gracias por elegirnos. Síguenos en nuestras redes sociales para más actualizaciones.</p>
-  
     <div class="social-links">
       <a href="#" target="_blank">Facebook</a>
       <a href="#" target="_blank">Instagram</a>
       <a href="#" target="_blank">Twitter</a>
     </div>
-  
     <div class="footer-bottom">
       <p>&copy; 2025 Reservas Restaurantes. Todos los derechos reservados.</p>
     </div>
   </footer>
 
 </body>
+
 </html>
