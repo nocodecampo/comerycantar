@@ -9,15 +9,20 @@ import db
 app = Flask(__name__)
 app.secret_key="123456"
 
+
+@app.route('/')
+def home():
+    return render_template("home/home.html")
+
 # -------------------------------
-# 🔹 LOGIN CLIENTE
+# 🔹 CLIENTE
 # -------------------------------
 @app.route('/login-cliente', methods=['GET', 'POST'])
 def loginCliente():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
-
+    
         conexion = db.get_connection()
         try:
             with conexion.cursor() as cursor:
@@ -43,17 +48,6 @@ def logout():
 
     # Redirigir al login o a la página de inicio
     return redirect(url_for('loginCliente'))  # redirigir a  página de eleccion , de momento loginCliente , despues?->'home'
-  
-
-@app.route('/dashboard-cliente')
-def dashboard_cliente():
-    if 'cliente_id' in session:
-        return render_template("reservas/nueva-reserva.html")
-    else:
-        return redirect(url_for('loginCliente'))
-    
- 
-
     
 @app.route('/registro-cliente', methods=['GET', 'POST'])
 def registroCliente():
@@ -79,6 +73,38 @@ def registroCliente():
 
     return render_template("registro/registro-cliente.html")
 
+# -------------------------------
+# 🔹 RESTAURANTE
+# -------------------------------
+
+#login restaurante
+@app.route('/login-restaurante', methods=['GET', 'POST'])
+def loginRestaurante():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+
+        conexion = db.get_connection()
+        try:
+            with conexion.cursor() as cursor:
+                consulta = "SELECT * FROM restaurantes WHERE email = %s"
+                cursor.execute(consulta, (email,))
+                restaurante = cursor.fetchone()
+                
+                if restaurante and check_password_hash(restaurante['password_hash'], password):
+                    session['restaurante_id'] = restaurante['restaurante_id']
+                    session['email'] = restaurante['email']
+                    return redirect(url_for('area_restaurante'))  # Redirigir a dashboard restaurante
+                else:
+                    flash("Usuario o contraseña incorrectos", "error")
+                    
+                    
+                 
+        
+        finally:
+            conexion.close()
+
+    return render_template("login/login-restaurante.html") 
 
 # Ruta de registro de restaurante (GET y POST)
 @app.route('/registro-restaurante', methods=['GET', 'POST'])
@@ -233,39 +259,87 @@ def agregar_mesa():
     return redirect(url_for('area_restaurante'))
 
 
-   
-#login restaurante
-@app.route('/login-restaurante', methods=['GET', 'POST'])
-def loginRestaurante():
+@app.route('/nueva-reserva', methods=['GET', 'POST'])
+def nueva_reserva():
     if request.method == 'POST':
-        email = request.form['email']
-        password = request.form['password']
+        # Recoge los datos del formulario
+        fecha = request.form['fecha']
+        horario_id = request.form['horario_id']
+        num_personas = request.form['num_personas']
+        restaurante_id = request.form['restaurante_id']
+        cliente_id = session['cliente_id']  # Asumiendo que el cliente está logueado y su ID está en la sesión
 
-        conexion = db.get_connection()
+        # TODO: Validar los datos recibidos del formulario (puedes agregar más validaciones aquí)
+
         try:
-            with conexion.cursor() as cursor:
-                consulta = "SELECT * FROM restaurantes WHERE email = %s"
-                cursor.execute(consulta, (email,))
-                restaurante = cursor.fetchone()
-                
-                if restaurante and check_password_hash(restaurante['password_hash'], password):
-                    session['restaurante_id'] = restaurante['restaurante_id']
-                    session['email'] = restaurante['email']
-                    return redirect(url_for('area_restaurante'))  # Redirigir a dashboard restaurante
-                else:
-                    flash("Usuario o contraseña incorrectos", "error")
-                    
-                    
-                 
-        
+            # Conexión a la base de datos
+            connection = db.get_connection()
+            cursor = connection.cursor()
+
+            # Lógica para encontrar una mesa disponible
+            query_mesas_disponibles = """
+                SELECT mesa_id FROM mesas 
+                WHERE restaurante_id = %s AND capacidad >= %s AND estado = 'disponible'
+                AND mesa_id NOT IN (
+                    SELECT mesa_id FROM reservas
+                    WHERE fecha = %s AND horario_id = %s
+                )
+                LIMIT 1
+            """
+            cursor.execute(query_mesas_disponibles, (restaurante_id, num_personas, fecha, horario_id))
+            mesa_disponible = cursor.fetchall()
+
+            if mesa_disponible:
+                mesa_id = mesa_disponible[0]
+
+                # Crea la reserva en la base de datos
+                query_insert_reserva = """
+                    INSERT INTO reservas (cliente_id, restaurante_id, mesa_id, estado_id, fecha, horario_id, num_personas)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)
+                """
+                estado_id = 1  # 'activa'
+                cursor.execute(query_insert_reserva, (cliente_id, restaurante_id, mesa_id["mesa_id"], estado_id, fecha, horario_id, num_personas))
+                connection.commit()
+
+                # TODO: Actualizar el estado de la mesa a 'ocupada' si es necesario
+
+                # Redirige a una página de confirmación (puedes mostrar un mensaje o redirigir)
+                return redirect(url_for('reservas'))  # O redirigir a una página específica de confirmación
+            else:
+                # Si no hay mesas disponibles, muestra un mensaje de error
+                return render_template("reservas/nueva-reserva.html", error="No hay mesas disponibles para la fecha, hora y número de personas seleccionados.", restaurantes=restaurantes, horarios=horarios)
+
+        except pymysql.Error as e:
+            print("Error al realizar la reserva:", e)
+            return "Error al realizar la reserva. Por favor, inténtelo de nuevo más tarde."
         finally:
-            conexion.close()
+            if connection:
+                cursor.close()
+                connection.close()
 
-    return render_template("login/login-restaurante.html") 
+    # Si es una petición GET, muestra el formulario de reserva con los restaurantes y horarios
+    try:
+        connection = db.get_connection()
+        cursor = connection.cursor()
 
-    
+        # Obtener los restaurantes
+        cursor.execute("SELECT restaurante_id, nombre FROM restaurantes")
+        restaurantes = cursor.fetchall()
+
+        # Obtener los horarios
+        cursor.execute("SELECT horario_id, hora FROM horarios")
+        horarios = cursor.fetchall()
+
+        cursor.close()
+        connection.close()
+
+        return render_template("reservas/nueva-reserva.html", restaurantes=restaurantes, horarios=horarios)
+
+    except pymysql.Error as e:
+        print("Error al obtener los restaurantes o horarios:", e)
+        return "Error al cargar los datos necesarios para la reserva."
 
 
 
-if __name__ == '__main__':    
-    app.run(debug=True,port=80)
+if __name__ == '__main__':
+    app.run(debug=True, port=80)

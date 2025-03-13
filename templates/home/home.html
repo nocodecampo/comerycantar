@@ -1,11 +1,76 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+  <title>Comer y Cantar</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
+  <header>
+    <h1>¡Bienvenido a Comer y Cantar!</h1>
+    <p>La mejor plataforma para hacer reservas en tus restaurantes favoritos fácilmente.</p>
+  </header>
+
+<section>
+  <p>Si ya eres usuario, adelante con tu gestión:</p>
+  <div class="button-container">
+    <a href="{{url_for('loginCliente')}}" class="btn">Inicia sesión para hacer tu reserva</a>
+    <a href="{{url_for('loginRestaurante')}}" class="btn">Inicia sesión para gestionar tus reservas</a>
+  </div>
+</section>
+<hr>
+<section>
+  <p>Si todavía no formas parte, regístrate:</p>
+  <div class="button-container">
+    <a href="{{url_for('registroCliente')}}" class="btn">Regístrate aquí como cliente</a>
+    <a href="{{url_for('registroRestaurante')}}" class="btn">Registra tu restaurante</a>
+  </div>
+
+
+
+</section>
+
+
+  <!-- Galería de imágenes con efectos hover -->
+  <div class="image-gallery">
+    <img src="https://images.pexels.com/photos/1640770/pexels-photo-1640770.jpeg" alt="Imagen de comida" width="400" height="250">
+    <img src="https://images.pexels.com/photos/1435907/pexels-photo-1435907.jpeg" alt="Pizza" width="400" height="250">
+    <img src="https://images.pexels.com/photos/271715/pexels-photo-271715.jpeg?auto=compress&cs=tinysrgb&w=400" alt="Sushi" width="400" height="250">
+
+    <footer>
+      <p>Gracias por elegirnos. Síguenos en nuestras redes sociales para más actualizaciones.</p>
+    
+      <!-- Enlaces de redes sociales -->
+      <div class="social-links">
+        <a href="#" target="_blank">Facebook</a>
+        <a href="#" target="_blank">Instagram</a>
+        <a href="#" target="_blank">Twitter</a>
+      </div>
+    
+      <!-- Información de la parte inferior -->
+      <div class="footer-bottom">
+        <p>&copy; 2025 Reservas Restaurantes. Todos los derechos reservados.</p>
+      </div>
+    </footer>
   
+
+  <!-- JavaScript para un pequeño efecto -->
+  <script>
+    // Función para animar enlaces al pasar el ratón
+    const links = document.querySelectorAll('a');
+
+    links.forEach(link => {
+      link.addEventListener('mouseover', () => {
+        link.style.transform = 'scale(1.1)';
+        link.style.transition = 'transform 0.3s ease-in-out';
+      });
+
+      link.addEventListener('mouseout', () => {
+        link.style.transform = 'scale(1)';
+      });
+    });
+  </script>
 </body>
 </html>
+

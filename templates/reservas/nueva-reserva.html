@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Realizar una nueva reserva</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+  <header>
+    <h1>Haz tu reserva en uno de nuestros restaurantes</h1>
+  </header>
+
+  <form action="/nueva-reserva" method="POST">
+    <!-- Fecha de la reserva -->
+    <label for="fecha">Fecha de la reserva:</label>
+    <input type="date" id="fecha" name="fecha" required><br><br>
+
+    <!-- Selección de hora -->
+    <label for="horario_id">Hora de la reserva:</label>
+    <select id="horario_id" name="horario_id" required>
+      {% for horario in horarios %}
+        <option value="{{ horario.horario_id }}">{{ horario.hora }}</option>
+      {% endfor %}
+    </select><br><br>
+
+    <!-- Número de personas -->
+    <label for="num_personas">Número de personas:</label>
+    <input type="number" id="num_personas" name="num_personas" min="1" required><br><br>
+
+    <!-- Selección del restaurante -->
+    <label for="restaurante_id">Selecciona el restaurante:</label>
+    <select id="restaurante_id" name="restaurante_id" required>
+      {% for restaurante in restaurantes %}
+        <option value="{{ restaurante.restaurante_id }}">{{ restaurante.nombre }}</option>
+      {% endfor %}
+    </select><br><br>
+
+    <button type="submit">Hacer Reserva</button>
+  </form>
+
+  <footer>
+    <p>Gracias por elegirnos. Síguenos en nuestras redes sociales para más actualizaciones.</p>
+  
+    <div class="social-links">
+      <a href="#" target="_blank">Facebook</a>
+      <a href="#" target="_blank">Instagram</a>
+      <a href="#" target="_blank">Twitter</a>
+    </div>
+  
+    <div class="footer-bottom">
+      <p>&copy; 2025 Reservas Restaurantes. Todos los derechos reservados.</p>
+    </div>
+  </footer>
+
+</body>
+</html>
