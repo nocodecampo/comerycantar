@@ -37,6 +37,14 @@
     <div class="container mt-5">
       <h1 class="text-center">🍽️ Área Restaurante</h1>
 
+      <!-- ✅ Bloque de mensajes de error y éxito -->
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %} {% for category, message in messages %}
+      <div class="alert alert-{{ category }} text-center" role="alert">
+        {{ message }}
+      </div>
+      {% endfor %} {% endif %} {% endwith %}
+
       <!-- ✅ Selector de Fecha -->
       <form
         method="GET"

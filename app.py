@@ -375,63 +375,65 @@ def agregar_mesa():
 
 @app.route('/nueva-reserva', methods=['GET', 'POST'])
 def nueva_reserva():
+    if "cliente_id" not in session:
+        return redirect(url_for('loginCliente'))
+
     if request.method == 'POST':
         # Recoge los datos del formulario
         fecha = request.form['fecha']
         horario_id = request.form['horario_id']
         num_personas = request.form['num_personas']
         restaurante_id = request.form['restaurante_id']
-        cliente_id = session['cliente_id']  # Asumiendo que el cliente está logueado y su ID está en la sesión
-
-        # TODO: Validar los datos recibidos del formulario (puedes agregar más validaciones aquí)
+        cliente_id = session['cliente_id']
 
         try:
             # Conexión a la base de datos
             connection = db.get_connection()
             cursor = connection.cursor()
 
-            # Lógica para encontrar una mesa disponible
+            # 🔹 Verificar si hay una mesa disponible para la fecha y horario seleccionados
             query_mesas_disponibles = """
                 SELECT mesa_id FROM mesas 
-                WHERE restaurante_id = %s AND capacidad >= %s AND estado = 'disponible'
+                WHERE restaurante_id = %s 
+                AND capacidad >= %s 
+                AND estado = 'disponible'
                 AND mesa_id NOT IN (
                     SELECT mesa_id FROM reservas
-                    WHERE fecha = %s AND horario_id = %s
+                    WHERE fecha = %s 
+                    AND horario_id = %s
+                    AND estado_id = (SELECT estado_id FROM estados_reserva WHERE estado_nombre = 'activa')
                 )
                 LIMIT 1
             """
             cursor.execute(query_mesas_disponibles, (restaurante_id, num_personas, fecha, horario_id))
-            mesa_disponible = cursor.fetchall()
+            mesa_disponible = cursor.fetchone()  # 🔹 Usamos `fetchone()` en lugar de `fetchall()`
 
             if mesa_disponible:
-                mesa_id = mesa_disponible[0]
+                mesa_id = mesa_disponible["mesa_id"]
 
-                # Crea la reserva en la base de datos
+                # 🔹 Insertar la nueva reserva
                 query_insert_reserva = """
                     INSERT INTO reservas (cliente_id, restaurante_id, mesa_id, estado_id, fecha, horario_id, num_personas)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s)
+                    VALUES (%s, %s, %s, (SELECT estado_id FROM estados_reserva WHERE estado_nombre = 'activa'), %s, %s, %s)
                 """
-                estado_id = 1  # 'activa'
-                cursor.execute(query_insert_reserva, (cliente_id, restaurante_id, mesa_id["mesa_id"], estado_id, fecha, horario_id, num_personas))
+                cursor.execute(query_insert_reserva, (cliente_id, restaurante_id, mesa_id, fecha, horario_id, num_personas))
                 connection.commit()
+                flash("Reserva realizada con éxito.", "success")
 
-                # TODO: Actualizar el estado de la mesa a 'ocupada' si es necesario
-
-                # Redirige a una página de confirmación (puedes mostrar un mensaje o redirigir)
-                return redirect(url_for('reservas'))  # O redirigir a una página específica de confirmación
+                return redirect(url_for('reservas'))
             else:
-                # Si no hay mesas disponibles, muestra un mensaje de error
-                return render_template("reservas/nueva-reserva.html", error="No hay mesas disponibles para la fecha, hora y número de personas seleccionados.", restaurantes=restaurantes, horarios=horarios)
+                flash("⚠️ No hay mesas disponibles para la fecha, hora y número de personas seleccionados.", "danger")
 
         except pymysql.Error as e:
             print("Error al realizar la reserva:", e)
-            return "Error al realizar la reserva. Por favor, inténtelo de nuevo más tarde."
+            flash("⚠️ Error al realizar la reserva. Inténtalo de nuevo más tarde.", "danger")
+
         finally:
             if connection:
                 cursor.close()
                 connection.close()
 
-    # Si es una petición GET, muestra el formulario de reserva con los restaurantes y horarios
+    # 🔹 Si es una petición GET, muestra el formulario de reserva
     try:
         connection = db.get_connection()
         cursor = connection.cursor()
