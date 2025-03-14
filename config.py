@@ -1,4 +1,3 @@
-# config.py
 import os
 
 class Config:
@@ -10,3 +9,12 @@ class Config:
     DB_USER = os.environ.get('DB_USER', 'root')
     DB_PASSWORD = os.environ.get('DB_PASSWORD', '')
     DB_NAME = os.environ.get('DB_NAME', 'reservas_restaurantes')
+
+    # Configuración del servidor de correo (Ejemplo con Gmail)
+    MAIL_SERVER = "smtp.gmail.com"
+    MAIL_PORT = 587
+    MAIL_USE_TLS = True
+    MAIL_USERNAME = os.environ.get("MAIL_USERNAME", "itcode1992@gmail.com")  # Cambia esto
+    MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD", "rftk qoak aijl tkuw")  # Usa una contraseña segura (o App Password)
+    MAIL_DEFAULT_SENDER = os.environ.get("MAIL_DEFAULT_SENDER", "itcode1992@gmail.com")  # Usa tu correo aquí
+
