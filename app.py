@@ -3,17 +3,32 @@ from werkzeug.security import check_password_hash,generate_password_hash
 import pymysql
 import db
 from datetime import datetime
+from EmailService import EmailService 
+from config import Config
+
 
 
 
 
 app = Flask(__name__)
 app.secret_key="123456"
+app.config.from_object(Config)  # 🔹 Cargar configuración correctamente
 
+# 🔹 Inicializar el servicio de correo con la app
+email_service = EmailService(app)
 
 @app.route('/')
 def home():
     return render_template("home/home.html")
+
+@app.route("/enviar")
+def enviar_correo():
+    enviado = email_service.send_email(
+        subject="¡Gracias por tu reserva!",
+        recipients=["tomas.fermoso@gmail.com"],
+        body="Tu reserva ha sido confirmada. ¡Te esperamos en el restaurante!"
+    )
+    return "Correo enviado" if enviado else "Error al enviar"
 
 # -------------------------------
 # 🔹 CLIENTE
@@ -276,13 +291,13 @@ def confirmar_reserva(reserva_id):
         with conexion.cursor() as cursor:
             # 🔹 Verificar si la reserva es "activa" y aún no ha sido confirmada
             consulta_verificar = """
-                SELECT estado_id, confirmada_por_restaurante FROM reservas 
+                SELECT estado_id, confirmada_por_restaurante, c.email FROM reservas r inner join clientes c on r.cliente_id = c.cliente_id
                 WHERE reserva_id = %s AND restaurante_id = %s 
                 AND estado_id = (SELECT estado_id FROM estados_reserva WHERE estado_nombre = 'activa')
             """
             cursor.execute(consulta_verificar, (reserva_id, session["restaurante_id"]))
             reserva = cursor.fetchone()
-
+            email_client= reserva["email"]
             if reserva and not reserva["confirmada_por_restaurante"]:  # Solo confirmar si aún no ha sido confirmada
                 consulta_confirmar = """
                     UPDATE reservas 
@@ -292,6 +307,13 @@ def confirmar_reserva(reserva_id):
                 cursor.execute(consulta_confirmar, (reserva_id,))
                 conexion.commit()
                 flash("Reserva confirmada con éxito.", "success")
+                enviado = email_service.send_email(
+                 subject="¡Gracias por tu reserva!",
+        recipients=[email_client],
+        body="Tu reserva ha sido confirmada. ¡Te esperamos en el restaurante!"
+    )
+                print("Correo enviado:", enviado)
+    
             elif reserva and reserva["confirmada_por_restaurante"]:
                 flash("Esta reserva ya fue confirmada.", "info")
             else:

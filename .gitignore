@@ -10,3 +10,5 @@ __pycache__/
 # Configuraciones de IDEs y editores de código
 .vscode/
 .idea/
+
+config.py
