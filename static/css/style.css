@@ -1,300 +1,166 @@
-*{
+/* ✅ Reset General */
+* {
   margin: 0;
   padding: 0;
-  box-sizing: border-box;;
-}
-body {
-  font-family: 'Arial', sans-serif;
-  margin: 0;
-  padding: 0;
-  background: linear-gradient(to right, #f9c6a0, #f9c1b0);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  overflow: hidden; /* Desactiva el scroll */
-  height: 100%; /* Asegura que la altura de la página ocupe todo el espacio disponible */
-  margin: 0;
+  box-sizing: border-box;
 }
 
+/* ✅ Estilo General */
+body {
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(to right, #f9c6a0, #f9c1b0);
+  color: #333;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ✅ Contenedor Principal */
+main {
+  flex-grow: 1; /* Permite que el contenido crezca y el footer quede fijo abajo */
+}
+
+/* ✅ Barra de Navegación */
 header {
-  background: rgba(255, 255, 255, 0.8); 
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  color: white;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   padding: 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   text-align: center;
-  padding: 30px 20px;
 }
 
+/* ✅ Logo */
 header h1 {
-  font-size: 3em;
+  font-size: 2.5rem;
   font-weight: bold;
   color: #d35400;
 }
 
+/* ✅ Botones de navegación */
+nav {
+  display: flex;
+  gap: 15px;
+}
+
+/* ✅ Botón en desktop */
 nav a.register-link {
-  background-color: #d35400; /* Un tono más claro para diferenciarlo */
+  background-color: #d35400;
   color: white;
   padding: 10px 20px;
   text-decoration: none;
   border-radius: 5px;
   font-size: 1em;
-  transition: background-color 0.3s ease;
+  transition: 0.3s ease;
 }
 
+/* ✅ Botón hover */
 nav a.register-link:hover {
   background-color: #e67e22;
-  color: #333; /* Cambiar el color del texto al pasar el ratón */
 }
 
-header p {
-  font-size: 1.2em;
-  margin: 10px 0 0 0;
+/* ✅ Media Query para pantallas pequeñas (hasta 768px) */
+@media (max-width: 768px) {
+  header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  /* ✅ Los botones ahora ocupan todo el ancho */
+  nav {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  nav a.register-link {
+    width: 90%; /* Ocupa casi todo el ancho */
+    text-align: center;
+    padding: 12px;
+    font-size: 1.2em;
+  }
 }
-/* Contenedor para los botones, alineándolos horizontalmente */
+
+/* ✅ Sección principal */
+section {
+  padding: 30px;
+  margin: 20px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+h3 {
+  text-align: center;
+  font-size: 1.5rem;
+  color: #333; /* Ahora los títulos secundarios son gris oscuro */
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+/* ✅ Botones de Acción */
 .button-container {
   display: flex;
-  gap: 20px; /* Espacio entre los botones */
-  justify-content: center; /* Centra los botones */
-  margin-top: 20px; /* Separar del texto */
+  gap: 20px;
+  justify-content: center;
+  margin-top: 20px;
 }
 
-/* Estilo para los botones */
 a.btn {
   text-decoration: none;
   padding: 12px 25px;
   font-size: 1.2em;
-  background-color: #f06c07; /* Color tomate */
+  background-color: #f06c07;
   color: white;
   border-radius: 5px;
+  transition: 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Efecto hover para los botones */
 a.btn:hover {
-  background-color: #ff4500; /* Cambia el color cuando se pasa el ratón */
-  color: white;
+  background-color: #ff4500;
+  transform: scale(1.05);
 }
 
-
-section {
-  padding: 20px;
-  margin: 20px;
-  background-color: white;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-section ul {
-  list-style-type: none;
-  padding: 0;
-}
-
-section ul li {
-  margin: 10px 0;
-  font-size: 1.1em;
-}
-
-section a {
-  text-decoration: none;
-  color: #ff6347;
-  font-weight: bold;
-  transition: color 0.3s ease;
-}
-
-section a:hover {
-  color: #ff4500;
-}
-
-/* Estilo para el área de imágenes */
+/* ✅ Galería de imágenes */
 .image-gallery {
-  text-align: center;
-  margin: 20px 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+  padding: 20px;
+  justify-content: center;
 }
 
 .image-gallery img {
   width: 100%;
-  height: auto;
+  height: 200px;
+  object-fit: cover;
   border-radius: 10px;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-}
-
-.image-gallery {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.image-gallery img {
-  width: 30%;
-  border-radius: 15px;
-  transition: transform 0.3s ease-in-out;
+  transition: transform 0.3s ease;
 }
 
 .image-gallery img:hover {
   transform: scale(1.05);
 }
 
-/* Estilos para el formulario de nueva reserva */
-form {
-  padding: 20px;
-  margin: 20px auto;
-  max-width: 600px; /* Ancho máximo del formulario */
-  background-color: white;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-form label {
-  display: block;
-  margin-bottom: 8px;
-  font-weight: bold;
-  color: #333;
-}
-
-form input[type="date"],
-form input[type="number"],
-form select {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 20px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  box-sizing: border-box; /* Asegura que el padding no aumente el ancho total */
-  font-size: 1em;
-}
-
-form select {
-  appearance: none; /* Elimina la flecha por defecto en algunos navegadores */
-  background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%2334495e"><path d="M7 10l5 5 5-5z"/></svg>');
-  background-repeat: no-repeat;
-  background-position: right 10px top 50%;
-  background-size: 20px;
-}
-
-form button[type="submit"] {
-  background-color: #ff6347; /* Color tomate */
-  color: white;
-  padding: 12px 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 1.1em;
-  transition: background-color 0.3s ease;
-}
-
-form button[type="submit"]:hover {
-  background-color: #ff4500; /* Tomate más oscuro al pasar el ratón */
-}
-
-/* General */
-body {
-  font-family: 'Arial', sans-serif;
-  margin: 0;
-  padding: 0;
-  background-color: #f4f4f9;
-  display: flex; /* Flexbox para el body */
-  flex-direction: column; /* Coloca el contenido en columna */
-  min-height: 100vh;
-}
-
-main {
-  flex-grow: 1; /* Permite que el contenido crezca y ocupe el espacio disponible */
-}
-
-h1, h2, p {
-  margin: 0;
-  padding: 0;
-}
-
-header h2 {
-  font-size: 1.5em;
-  margin-top: 10px;
-}
-
-h2 {
-  font-size: 1.5em; /* Tamaño de texto más grande */
-  color: white; /* Color oscuro para un buen contraste */
-  font-weight: 600; /* Un peso de fuente moderado */
-  text-align: center; /* Centra el texto */
-  margin: 20px auto; /* Añade espacio alrededor del párrafo */
-  padding: 15px; /* Espaciado dentro del párrafo */
-  max-width: 800px; /* Limita el ancho máximo para que no sea tan largo */
-  background-color: #d35400; /* Fondo suave */
-  border-radius: 10px; /* Bordes redondeados */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra sutil para dar profundidad */
-  transition: background-color 0.3s ease, transform 0.3s ease; /* Transiciones suaves para interacciones */
-}
-
-h3 {
-  font-family: 'Roboto', sans-serif; /* Fuente profesional */
-  font-size: 1.2em; /* Ajuste del tamaño de fuente */
-  text-align: center; /* Alinear el texto al centro */
-  color: #333; /* Color de texto oscuro */
-  margin: 20px 0; /* Espaciado superior e inferior para separarlo de otros elementos */
-  padding: 10px; /* Espaciado interno para mayor comodidad visual */
-  background-color: #f9f9f9; /* Fondo gris claro para que resalte el texto */
-  border-radius: 8px; /* Bordes redondeados */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra sutil para darle un efecto de profundidad */
-  max-width: 60%; /* Limitar el ancho del texto */
-  margin-left: auto; /* Centrar el texto */
-  margin-right: auto; /* Centrar el texto */
-  
-}
-
-/* Sección de botones */
-section {
-  padding: 40px 20px;
-  text-align: center;
-}
-
-.button-container {
-  margin-top: 20px;
-}
-
-.btn {
-  background-color: #d35400;
-  color: white;
-  padding: 15px 30px;
-  text-decoration: none;
-  border-radius: 5px;
-  font-size: 1.2em;
-  margin: 10px;
-  transition: background-color 0.3s ease;
-}
-
-.btn:hover {
-  background-color: #e67e22;
-}
-
-/* Galería de imágenes */
-.image-gallery {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  padding: 20px;
-}
-
-.image-gallery img {
-  width: 300px;
-  height: 200px;
-  object-fit: cover;
-  border-radius: 8px;
-}
-
-/* Footer */
+/* ✅ Footer Anclado al Fondo */
 footer {
   background-color: #d35400;
   color: white;
   text-align: center;
-  padding: 8px 20px;
+  padding: 15px 20px;
+  margin-top: auto; /* Hace que el footer siempre se quede abajo */
 }
 
 footer p {
   font-size: 1em;
 }
+
 .social-links {
-  margin-top: 20px;
+  margin-top: 10px;
 }
 
 .social-links a {
@@ -302,6 +168,7 @@ footer p {
   margin: 0 10px;
   text-decoration: none;
   font-size: 1.1em;
+  transition: color 0.3s ease;
 }
 
 .social-links a:hover {
@@ -309,12 +176,12 @@ footer p {
 }
 
 .footer-bottom {
-  margin-top: 20px;
-  font-size: 1em;
+  margin-top: 15px;
+  font-size: 0.9em;
   color: #f9c1b0;
 }
 
-/* Transiciones para los enlaces */
+/* ✅ Enlaces con efecto suave */
 a {
   transition: transform 0.3s ease-in-out;
 }

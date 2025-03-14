@@ -1,0 +1,120 @@
+/* ✅ Estilo General */
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(to right, #f9c6a0, #f9c1b0);
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* ✅ Contenedor Principal */
+main {
+    flex-grow: 1;
+}
+
+/* ✅ Encabezado */
+header {
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    text-align: center;
+}
+
+header h1 {
+    font-size: 2.2rem;
+    font-weight: bold;
+    color: #d35400;
+}
+
+/* ✅ Formulario de Nueva Reserva */
+.form-container {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* ✅ Campos de formulario */
+.form-label {
+    font-weight: bold;
+    color: #d35400;
+}
+
+.form-control, .form-select {
+    padding: 12px;
+    font-size: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    transition: border-color 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #b84300;
+    outline: none;
+}
+
+/* ✅ Botón de envío */
+.btn-orange {
+    background-color: #d35400;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.btn-orange:hover {
+    background-color: #b84300;
+}
+
+/* ✅ Footer */
+footer {
+    background-color: #d35400;
+    color: white;
+    text-align: center;
+    padding: 15px 20px;
+    margin-top: auto;
+}
+
+footer p {
+    font-size: 1em;
+}
+
+.social-links {
+    margin-top: 10px;
+}
+
+.social-links a {
+    color: white;
+    margin: 0 10px;
+    text-decoration: none;
+    font-size: 1.1em;
+    transition: color 0.3s ease;
+}
+
+.social-links a:hover {
+    color: #f9c1b0;
+}
+
+.footer-bottom {
+    margin-top: 15px;
+    font-size: 0.9em;
+    color: #f9c1b0;
+}
+
+nav a{
+    color: #d35400;
+    text-decoration: none;
+    font-size: 1.2rem;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+nav a:hover{
+    color: #b84300;
+}
