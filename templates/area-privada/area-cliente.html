@@ -20,15 +20,27 @@
       rel="stylesheet"
       href="{{ url_for('static', filename='css/cliente.css') }}"
     />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+      integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
   </head>
   <body>
     <!-- ✅ Barra de navegación -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav class="navbar navbar-light bg-white shadow-sm w-100">
       <div class="container">
-        <a class="navbar-brand" href="{{url_for('home')}}">Comer y Cantar</a>
+        <a
+          class="navbar-brand fw-bold text-orange"
+          href="{{ url_for('home') }}"
+        >
+          Comer y Cantar <i class="fa-solid fa-utensils ms-2"></i>
+        </a>
         <div class="d-flex">
-          <a href="{{ url_for('logout') }}" class="btn btn-outline-light"
-            >🚪 Cerrar Sesión</a
+          <a href="{{url_for('logout')}}" class="btn btn-outline-light"
+            ><i class="fa-solid fa-door-open"></i> Cerrar Sesión</a
           >
         </div>
       </div>

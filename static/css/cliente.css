@@ -1,28 +1,32 @@
 /* ✅ Estilo General */
 body {
     font-family: 'Poppins', sans-serif;
-    background-color: #f8f9fa;
+    background-color: #fdf2e9; /* Fondo cálido */
     color: #333;
 }
 
 /* ✅ Barra de Navegación */
 .navbar {
-    background-color: #2c3e50 !important;
+    background-color: #d35400 !important; /* Naranja principal */
 }
 
 .navbar-brand {
     font-weight: bold;
     font-size: 1.5rem;
+    color: white !important;
 }
 
 .btn-outline-light {
     font-weight: bold;
     transition: 0.3s ease;
+    border-color: #d35400 !important;
+    color: white !important;
 }
 
 .btn-outline-light:hover {
-    background-color: #1abc9c;
-    border-color: #1abc9c;
+    background-color: #b84300 !important;
+    border-color: #b84300 !important;
+    color: white !important;
 }
 
 /* ✅ Contenedor Principal */
@@ -34,21 +38,21 @@ body {
 h1 {
     font-size: 2rem;
     font-weight: bold;
-    color: #2c3e50;
+    color: #d35400; /* Naranja principal */
     text-align: center;
     margin-bottom: 20px;
 }
 
 /* ✅ Botón Nueva Reserva */
 .btn-success {
-    background-color: #1abc9c !important;
+    background-color: #d35400 !important; /* Naranja principal */
     border: none;
     font-weight: bold;
     transition: 0.3s ease;
 }
 
 .btn-success:hover {
-    background-color: #16a085 !important;
+    background-color: #b84300 !important;
 }
 
 /* ✅ Tarjetas de Reserva */
@@ -56,6 +60,7 @@ h1 {
     border-radius: 12px;
     overflow: hidden;
     transition: transform 0.2s ease-in-out;
+    border: 2px solid #d35400; /* Bordes naranjas */
 }
 
 .card:hover {
@@ -74,18 +79,21 @@ h1 {
     font-weight: bold;
 }
 
+/* ✅ Estado "Activa" en Verde */
 .badge.bg-success {
-    background-color: #1abc9c !important;
+    background-color: #1abc9c !important; /* Verde para activas */
     color: white;
 }
 
+/* ✅ Estado "Cancelada" en Rojo */
 .badge.bg-danger {
-    background-color: #e74c3c !important;
+    background-color: #e74c3c !important; /* Rojo para canceladas */
     color: white;
 }
 
+/* ✅ Estado "Pasada" en Gris */
 .badge.bg-secondary {
-    background-color: #95a5a6 !important;
+    background-color: #bdc3c7 !important; /* Gris claro para pasadas */
     color: white;
 }
 
